@@ -2,7 +2,7 @@
 // Set GEMINI_API_KEY as a Worker secret in Cloudflare's dashboard.
 // Set ALLOWED_ORIGIN as a Worker text variable when using a different domain.
 const DEFAULT_ORIGIN = 'https://sladeykins-glitch.github.io';
-const ALLOWED_MODELS = new Set(['gemini-2.5-flash','gemini-2.5-flash-lite']);
+const ALLOWED_MODELS = new Set(['gemini-3.5-flash-lite','gemini-3.5-flash','gemini-3.1-flash-lite','gemini-2.5-flash','gemini-2.5-flash-lite']);
 const realms = new Set(['Past','Present','Future','Spirits','Flesh','Hidden']);
 const types = new Map([["Raven’s Talon",4],["Raven's Talon",4],['Wolf Fang',6],['Serpent Vertebra',8],['Deer Rib',10],['Owl Skull Shard',12],["Ancestor’s Jawbone",20],["Ancestor's Jawbone",20]]);
 const canonical = new Map([["Raven’s Talon","Raven's Talon"],["Raven's Talon","Raven's Talon"],["Ancestor’s Jawbone","Ancestor's Jawbone"],["Ancestor's Jawbone","Ancestor's Jawbone"]]);
@@ -41,7 +41,7 @@ export default {
   const dominant=Array.isArray(data.dominant)?data.dominant.filter(z=>realms.has(z)).slice(0,6):[];
   const ravenPointsAt=Array.isArray(data.ravenPointsAt)?data.ravenPointsAt.filter(n=>typeof n==='string'&&names.has(norm(n))).slice(0,6).map(norm):[];
   const clean={question:data.question,bones,touching,isolated,dominant,ravenPointsAt};
-  const model=ALLOWED_MODELS.has(env.GEMINI_MODEL)?env.GEMINI_MODEL:'gemini-2.5-flash';
+  const model=ALLOWED_MODELS.has(env.GEMINI_MODEL)?env.GEMINI_MODEL :'gemini-3.5-flash-lite';
   let reply;
   try{
    reply=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent',{
@@ -50,7 +50,12 @@ export default {
     signal:AbortSignal.timeout(25000)
    });
   }catch{return responseJSON({error:'Gemini request timed out or failed'},502,cors)}
-  if(!reply.ok){return responseJSON({error:reply.status===429?'Gemini quota or rate limit reached':reply.status===403?'Gemini key/model access denied':'Gemini is unavailable'},502,cors)}
+  if(!reply.ok){
+   let googleError={};try{googleError=(await reply.json()).error||{}}catch{}
+   const code=reply.status;
+   const message=code===400?'Gemini rejected the request (400)':code===401?'Gemini authentication failed (401)':code===403?'Gemini key, permissions, or region denied (403)':code===404?'Gemini model unavailable to this API project (404)':code===429?'Gemini free quota or rate limit reached (429)':code>=500?'Google Gemini server unavailable ('+code+')':'Gemini request rejected ('+code+')';
+   return responseJSON({error:message,geminiStatus:googleError.status||undefined,model},502,cors)
+  }
   let result;try{result=await reply.json()}catch{return responseJSON({error:'Invalid Gemini response'},502,cors)}
   const reading=(result.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('').trim();
   if(!reading)return responseJSON({error:'Gemini returned no interpretation'},502,cors);
