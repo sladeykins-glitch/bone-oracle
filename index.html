@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bone Oracle — Astragalomancy</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=IM+Fell+English:ital@0;1&display=swap');
+:root{--gold:#bc9458;--bright:#e6c891;--ink:#0d1011;--muted:#978d7a;--line:#524637;--parch:#d1b98c}
+*{box-sizing:border-box}body{margin:0;background:#080b0c;color:#ddd0b6;font-family:Georgia,serif;min-height:100vh;background-image:radial-gradient(ellipse at 50% -35%,#28302e,transparent 65%),repeating-linear-gradient(95deg,transparent 0 52px,#ffffff02 53px 54px)}
+header{text-align:center;padding:28px 12px 17px;border-bottom:1px solid #57463280;background:linear-gradient(#121614bb,#0a0d0dc9)}
+.eyebrow{font:10px Cinzel,serif;letter-spacing:4px;color:var(--gold)}h1{font:normal clamp(28px,4vw,49px) Cinzel,serif;letter-spacing:6px;color:#e7d5b1;margin:8px 0 4px;text-shadow:0 1px 24px #b8873442}
+.subtitle{font:italic 15px 'IM Fell English',Georgia,serif;color:#aa9676;margin:0}
+.layout{display:grid;grid-template-columns:minmax(250px,315px) minmax(330px,760px) minmax(250px,315px);gap:20px;align-items:start;max-width:1500px;padding:25px 20px 55px;margin:0 auto}
+.panel{border:1px solid #544535;background:linear-gradient(155deg,#1a1c1b,#101414 75%);box-shadow:inset 0 0 35px #050707,0 15px 35px #0007;padding:23px 20px;min-width:0}
+.panel h2{font:500 17px Cinzel,serif;color:var(--bright);margin:0 0 17px;letter-spacing:2px}.panel h3{font:500 12px Cinzel,serif;letter-spacing:2px;color:#bba178;margin:24px 0 9px}
+.rule{height:1px;background:linear-gradient(90deg,transparent,#6e5739,transparent);margin:20px 0}
+small,.small{font-size:12px;color:#99917e;line-height:1.6}.label{display:block;font:11px Cinzel,serif;color:#ad956e;letter-spacing:1.6px;margin:16px 0 8px}
+textarea{width:100%;min-height:90px;padding:13px;resize:vertical;background:#0e1112;border:1px solid #514334;color:#e6d9be;font:italic 17px 'IM Fell English',serif;outline:none}textarea:focus{border-color:var(--gold)}
+.choice{display:flex;gap:7px;flex-wrap:wrap}.choice button,.bone-check{border:1px solid #514535;background:#151717;color:#b7a88e;cursor:pointer}
+.choice button{width:37px;height:35px;font:15px Cinzel,serif}.choice button.active,.bone-check.active{border-color:#d0ab70;background:#44331f;color:#ffe3ae}
+.bone-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.bone-check{padding:8px 5px;text-align:center;font-size:12px;line-height:1.35}.bone-check small{font-size:10px;color:#a48e6b}
+.actions{display:flex;gap:9px;margin-top:18px}.primary,.secondary{padding:13px 10px;font:12px Cinzel,serif;letter-spacing:1.5px;cursor:pointer;transition:.2s}
+.primary{flex:1;color:#18130d;background:linear-gradient(120deg,#a27d4b,#e1bd7a,#997043);border:1px solid #e3c18c}.primary:hover{filter:brightness(1.16)}.secondary{background:transparent;border:1px solid #66533b;color:#c4a57d}.secondary:hover{background:#30251c}
+.stage{position:relative;min-width:0;display:flex;flex-direction:column;align-items:center;gap:13px}
+.mat-wrap{width:100%;aspect-ratio:1;max-width:760px;position:relative;border-radius:50%;padding:9px;background:radial-gradient(circle,#34291e 64%,#0f1110 71%);filter:drop-shadow(0 12px 32px #0009)}
+.mat-wrap:after{content:'';pointer-events:none;position:absolute;inset:5px;border:1px solid #80643d;border-radius:50%;opacity:.65}
+canvas{display:block;width:100%;height:100%;border-radius:50%;cursor:crosshair;touch-action:none}
+.mat-caption{text-align:center;font:italic 15px 'IM Fell English',serif;color:#a89a82;min-height:20px}
+.status{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}.status span{border:1px solid #483b2b;padding:7px 10px;font:10px Cinzel,serif;letter-spacing:1px;color:#bba783}
+.result{line-height:1.6;font-size:14px;color:#c9baa1}.result em{color:#ead1a2}.result p{margin:0 0 13px}
+.omen{font:italic 20px/1.55 'IM Fell English',Georgia,serif;color:#eed7aa;border-left:2px solid #a6824a;padding:3px 0 3px 16px;margin-top:22px}
+.bone-row{border-bottom:1px solid #4b3c2a80;padding:11px 0;cursor:pointer}.bone-row:last-child{border:0}.bone-row strong{display:block;color:#dcc69f;font:13px Cinzel,serif}.bone-row span{font:12px Georgia,serif;color:#aa9b80}.bone-row.active strong{color:#ffe2ad}
+footer{text-align:center;color:#6e6759;font:11px Cinzel,serif;letter-spacing:1px;padding-bottom:25px}
+.switch{display:flex;align-items:center;gap:9px;margin:12px 0;color:#b8aa92;font-size:13px}.switch input{accent-color:#bd9960}
+@media(max-width:1170px){.layout{grid-template-columns:270px minmax(330px,1fr)}.reading{grid-column:1/-1}}@media(max-width:730px){.layout{grid-template-columns:1fr;padding:12px;gap:12px}.panel{padding:19px}.stage{grid-row:2}.reading{grid-column:auto}header{padding:22px 8px 14px}h1{letter-spacing:3px}}
+</style>
+</head>
+<body>
+<header><div class="eyebrow">✦ ASTRAGALOMANCY ✦</div><h1>THE BONE ORACLE</h1><p class="subtitle">“What is cast cannot be recalled.”</p></header>
+<main class="layout">
+<aside class="panel">
+<h2>Prepare the Casting</h2>
+<label class="label" for="question">YOUR QUESTION</label><textarea id="question" placeholder="What do the bones foretell?"></textarea>
+<label class="label">NUMBER OF BONES</label><div class="choice" id="counts"></div>
+<label class="label">BONE SELECTION</label>
+<div class="switch"><input type="checkbox" id="manual"><label for="manual">Select bones myself</label></div>
+<div class="bone-grid" id="boneSelect"></div>
+<p class="small" id="selectionNote">The Oracle chooses the bones by rolling a d6 for each.</p>
+<div class="actions"><button class="primary" id="cast">✦ CAST THE BONES</button><button class="secondary" id="clear" title="Clear casting">RESET</button></div>
+<div class="rule"></div>
+<h3>How to read the field</h3>
+<p class="small">The bones tumble, collide and settle. Their <b>physical positions</b> determine the realm. The central circle is Present; the four quadrants are Past, Spirits, Future and Flesh. Beyond the outer ring lies Hidden.</p>
+<p class="small">The bones' die rolls determine intensity. Touching bones signify intertwined influences; isolated bones may reveal neglected truths. You can <b>drag bones after they settle</b> to explore the arrangement.</p>
+<h3>About this interpretation</h3>
+<p class="small">This is an interactive physical-mode adaptation of your Astragalomancy rules. Realms come from the simulation, not a positioning d6. The interpretations are narrative fiction, not factual predictions.</p>
+</aside>
+<section class="stage">
+<div class="mat-wrap"><canvas id="mat" width="760" height="760" aria-label="Interactive bone casting mat"></canvas></div>
+<div class="mat-caption" id="matCaption">The cloth lies empty. Ask, and cast.</div>
+<div class="status"><span id="phase">AWAITING THE CAST</span><span id="counter">0 BONES</span><span id="touches">NO CONNECTIONS</span></div>
+</section>
+<aside class="panel reading">
+<h2>The Reading</h2>
+<div id="readingIntro" class="small">When the bones come to rest, their omens will be written here.</div>
+<div id="bonesList"></div><div class="rule"></div>
+<div class="switch"><input type="checkbox" id="aiMode"><label for="aiMode">Use Gemini AI interpretation</label></div><div style="margin:8px 0 12px"><label class="label" for="apiUrl">SECURE AI ENDPOINT (OPTIONAL)</label><input id="apiUrl" type="url" placeholder="https://your-worker.workers.dev" style="width:100%;padding:9px;background:#0e1112;border:1px solid #514334;color:#e6d9be;font:12px Georgia,serif"><p class="small">For GitHub Pages, enter your own secure Cloudflare Worker URL. Leave blank to use offline casting.</p></div><p class="small" id="aiStatus">Offline reading is always available. Gemini requires the deployed API to be configured.</p><div id="interpretation" class="result"></div>
+<div class="actions"><button id="copy" class="secondary" style="width:100%">COPY READING</button></div>
+</aside>
+</main>
+<footer>THE BONE ORACLE · A PHYSICAL CASTING INTERPRETATION OF YOUR ASTRAGALOMANCY SYSTEM</footer>
+<script>
+(()=>{
+'use strict';
+const defs=[
+ {id:'raven',name:"Raven’s Talon",die:4,short:'Raven',essence:'death, endings and fate',zones:{Past:'a death or severed bond shapes this hour',Present:'a necessary ending approaches',Future:'fate reaches for what is owed',Spirits:'the dead call out a warning',Flesh:'something precious is slipping away',Hidden:'an unforeseen ending waits unseen'}},
+ {id:'wolf',name:'Wolf Fang',die:6,short:'Wolf',essence:'passion, loyalty and instinct',zones:{Past:'an old loyalty has been tested',Present:'desire and rivalry burn in the present',Future:'boldness may bring triumph',Spirits:'a primal or divine pursuit stirs',Flesh:'strength, devotion and bodily longing speak',Hidden:'a quiet hunger has yet to show itself'}},
+ {id:'serpent',name:'Serpent Vertebra',die:8,short:'Serpent',essence:'transformation, cunning and rebirth',zones:{Past:'deceit or a former transformation echoes',Present:'the truth shifts beneath your feet',Future:'renewal may follow loss',Spirits:'hidden wisdom or a cunning power intervenes',Flesh:'a poison, physical or emotional, must be reckoned with',Hidden:'secrets and an untrodden path divide the way'}},
+ {id:'deer',name:'Deer Rib',die:10,short:'Deer',essence:'compassion, sacrifice and empathy',zones:{Past:'mercy shown or suffering endured has led here',Present:'vulnerability and empathy guide this hour',Future:'healing asks for something to be surrendered',Spirits:'a merciful unseen hand offers compassion',Flesh:'frailty and the instinct to nurture are revealed',Hidden:'a loss or emotion remains unspoken'}},
+ {id:'owl',name:'Owl Skull Shard',die:12,short:'Owl',essence:'knowledge, secrets and foresight',zones:{Past:'forgotten insight casts its shadow',Present:'an unseen truth may at last be recognised',Future:'a revelation nears',Spirits:'prophecy or foresight stirs',Flesh:'understanding may become a form of healing',Hidden:'knowledge remains veiled or burdensome'}},
+ {id:'ancestor',name:'Ancestor’s Jawbone',die:20,short:'Ancestor',essence:'legacy, destiny and ancestral truth',zones:{Past:'an inheritance or broken oath persists',Present:'destiny demands attention',Future:'judgment, fulfilment or blessing lies ahead',Spirits:'the ancestral voices are near',Flesh:'the body carries a legacy',Hidden:'misaligned spirits or an unknown path call'}}
+];
+const canvas=document.getElementById('mat'),ctx=canvas.getContext('2d'),C=380,R=310,PRESENT=107;
+const $=id=>document.getElementById(id);let count=4,manual=new Set(),bones=[],running=false,raf=0,last=0,drag=null,seed=23,copyText='';
+function rand(){seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296}
+function roll(n){return Math.floor(Math.random()*n)+1}
+function zone(x,y){let dx=x-C,dy=y-C,r=Math.hypot(dx,dy);if(r>R)return 'Hidden';if(r<PRESENT)return 'Present';if(Math.abs(dy)>Math.abs(dx))return dy<0?'Spirits':'Flesh';return dx<0?'Past':'Future'}
+function paint(){const g=ctx.createRadialGradient(C,C,50,C,C,380);g.addColorStop(0,'#c7ac7d');g.addColorStop(.75,'#a88b61');g.addColorStop(1,'#4e3928');ctx.fillStyle=g;ctx.fillRect(0,0,760,760);
+ ctx.save();ctx.beginPath();ctx.arc(C,C,365,0,Math.PI*2);ctx.clip();ctx.globalAlpha=.12;
+ for(let i=0;i<9500;i++){let x=(i*137.51)%760,y=(i*271.37)%760;ctx.fillStyle=i%3?'#e7ce9f':'#3b2a1c';ctx.fillRect(x,y,(i%3)+.4,(i%5)*.4+.3)}ctx.restore();ctx.globalAlpha=1;
+ ctx.strokeStyle='#533c2b';ctx.lineWidth=5;ring(346);ctx.lineWidth=1.2;ctx.strokeStyle='#705437';ring(334);ctx.setLineDash([3,7]);ring(320);ctx.setLineDash([]);
+ ctx.beginPath();ctx.arc(C,C,R,0,Math.PI*2);ctx.strokeStyle='#654b34';ctx.lineWidth=2;ctx.stroke();
+ ctx.beginPath();ctx.arc(C,C,PRESENT,0,Math.PI*2);ctx.strokeStyle='#735539';ctx.lineWidth=2;ctx.stroke();
+ ctx.beginPath();ctx.moveTo(C-R/Math.SQRT2,C-R/Math.SQRT2);ctx.lineTo(C+R/Math.SQRT2,C+R/Math.SQRT2);ctx.moveTo(C+R/Math.SQRT2,C-R/Math.SQRT2);ctx.lineTo(C-R/Math.SQRT2,C+R/Math.SQRT2);ctx.strokeStyle='#6b5039';ctx.lineWidth=1.6;ctx.stroke();
+ ctx.fillStyle='#4c3426';ctx.textAlign='center';ctx.font='20px Georgia';label('☾',C,57);label('✧',C,714);ctx.font='17px Georgia';label('SPIRITS',C,94);label('FLESH',C,673);label('PAST',118,C+7);label('FUTURE',642,C+7);ctx.font='16px Georgia';label('PRESENT',C,C-10);ctx.font='13px Georgia';label('THE LIVING QUESTION',C,C+15);ctx.font='11px Georgia';label('HIDDEN • BEYOND THE CIRCLE',C,743);
+ for(const b of bones)drawBone(b);
+ }
+function ring(r){ctx.beginPath();ctx.arc(C,C,r,0,Math.PI*2);ctx.stroke()}
+function label(s,x,y){ctx.fillText(s,x,y)}
+function drawBone(b){ctx.save();ctx.translate(b.x,b.y);ctx.rotate(b.angle);ctx.shadowColor='#27190880';ctx.shadowBlur=10;ctx.shadowOffsetY=5;
+ ctx.fillStyle='#efe1bf';ctx.strokeStyle='#755f42';ctx.lineWidth=2.7;ctx.lineJoin='round';ctx.beginPath();
+ if(b.id==='raven'){ctx.moveTo(-14,-27);ctx.bezierCurveTo(14,-19,22,3,12,17);ctx.quadraticCurveTo(2,28,-7,29);ctx.quadraticCurveTo(5,8,-14,-27)}
+ else if(b.id==='wolf'){ctx.moveTo(-24,-22);ctx.quadraticCurveTo(11,-31,21,-3);ctx.quadraticCurveTo(13,24,-2,32);ctx.quadraticCurveTo(-4,7,-24,-22)}
+ else if(b.id==='serpent'){ctx.ellipse(0,0,26,15,0,0,Math.PI*2)}
+ else if(b.id==='deer'){ctx.moveTo(-31,-10);ctx.bezierCurveTo(-12,-21,12,-20,31,-10);ctx.lineTo(31,8);ctx.bezierCurveTo(6,20,-11,20,-31,8);ctx.closePath()}
+ else if(b.id==='owl'){ctx.moveTo(-24,-16);ctx.quadraticCurveTo(0,-28,24,-16);ctx.lineTo(20,14);ctx.quadraticCurveTo(0,31,-20,14);ctx.closePath()}
+ else {ctx.moveTo(-30,-14);ctx.quadraticCurveTo(-20,-27,0,-20);ctx.quadraticCurveTo(20,-27,30,-14);ctx.lineTo(25,14);ctx.quadraticCurveTo(0,29,-25,14);ctx.closePath()}
+ ctx.fill();ctx.stroke();ctx.shadowBlur=0;ctx.shadowOffsetY=0;ctx.strokeStyle='#907551';ctx.lineWidth=1.5;
+ if(b.id==='serpent'){ringLocal(10);ringLocal(4)}
+ else if(b.id==='owl'){ringLocal(8);ctx.beginPath();ctx.moveTo(-14,10);ctx.lineTo(14,10);ctx.stroke()}
+ else if(b.id==='deer'){ctx.beginPath();ctx.moveTo(-26,0);ctx.quadraticCurveTo(0,-6,26,0);ctx.stroke()}
+ else if(b.id==='ancestor'){ctx.beginPath();ctx.moveTo(-19,9);ctx.lineTo(19,9);ctx.stroke();for(let i=-15;i<=15;i+=10){ctx.beginPath();ctx.moveTo(i,9);ctx.lineTo(i,17);ctx.stroke()}}
+ else{ctx.beginPath();ctx.moveTo(-8,-12);ctx.quadraticCurveTo(3,0,3,13);ctx.stroke()}
+ ctx.restore()}
+function ringLocal(r){ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.stroke()}
+function loop(t){let dt=Math.min(.04,(t-last)/1000||.016);last=t;
+ if(running){for(let k=0;k<3;k++)step(dt/3);let moving=bones.some(b=>Math.hypot(b.vx,b.vy)>6||Math.abs(b.av)>0.12);if(!moving&&t-(bones[0]?.born||0)>1500)stop();}
+ paint();raf=requestAnimationFrame(loop)}
+function step(dt){for(const b of bones){if(b===drag)continue;b.x+=b.vx*dt;b.y+=b.vy*dt;b.angle+=b.av*dt;b.vx*=Math.pow(.19,dt);b.vy*=Math.pow(.19,dt);b.av*=Math.pow(.085,dt);
+ const dx=b.x-C,dy=b.y-C,d=Math.hypot(dx,dy)||1,max=351;if(d>max){let nx=dx/d,ny=dy/d;b.x=C+nx*max;b.y=C+ny*max;let dot=b.vx*nx+b.vy*ny;if(dot>0){b.vx-=1.36*dot*nx;b.vy-=1.36*dot*ny;b.av+=(rand()-.5)*1.5}}}
+ for(let i=0;i<bones.length;i++)for(let j=i+1;j<bones.length;j++){let a=bones[i],b=bones[j],dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy)||.001,min=49;if(d>=min)continue;let nx=dx/d,ny=dy/d,over=min-d;if(a!==drag){a.x-=nx*over*.5;a.y-=ny*over*.5}if(b!==drag){b.x+=nx*over*.5;b.y+=ny*over*.5}let rv=(b.vx-a.vx)*nx+(b.vy-a.vy)*ny;if(rv<0){let impulse=-rv*.72;a.vx-=impulse*nx;a.vy-=impulse*ny;b.vx+=impulse*nx;b.vy+=impulse*ny;a.av+=(rand()-.5)*.7;b.av+=(rand()-.5)*.7}}}
+function stop(){running=false;$('phase').textContent='CASTING COMPLETE';$('matCaption').textContent='Touch a bone to study its omen, or drag it to change its realm.';reveal()}
+function cast(){if(running)return;version++;let pool=manual.size?defs.filter(d=>manual.has(d.id)):null;
+ if($('manual').checked&&(!pool||pool.length<2)){alert('Select at least two different bones.');return}
+ bones=[];seed=(Math.random()*4294967296)>>>0;
+ for(let i=0;i<count;i++){const d=pool?pool[Math.floor(rand()*pool.length)]:defs[roll(6)-1];let a=(i/count)*Math.PI*2+rand()*.9,rr=28+rand()*38;
+ bones.push({...d,selection:d.die===4?1:d.die===6?2:d.die===8?3:d.die===10?4:d.die===12?5:6,intensity:roll(d.die),x:C+Math.cos(a)*rr,y:C+Math.sin(a)*rr,angle:rand()*6.28,vx:(rand()-.5)*880,vy:(rand()-.5)*880,av:(rand()-.5)*16,born:performance.now()})}
+ running=true;$('phase').textContent='BONES IN MOTION';$('counter').textContent=count+' BONES';$('matCaption').textContent='The bones tumble across the field…';$('readingIntro').textContent='The omens are taking shape.';$('bonesList').innerHTML='';$('interpretation').innerHTML='';$('touches').textContent='READING UNSET';}
+function contact(a,b){return Math.hypot(a.x-b.x,a.y-b.y)<58}
+let version=0;
+function themeFor(question){let q=question.toLowerCase();
+ if(/surviv|return|back|escape|journey|reach|travel|home|frost|expedition/.test(q))return {subject:'the road home',action:'return',stakes:'the journey',positive:'a path through danger remains',negative:'the road demands a price',conditional:'A safe return depends on what you are willing to change'};
+ if(/love|heart|relationship|friend|trust|together/.test(q))return {subject:'the bond you ask about',action:'reconcile',stakes:'the bond',positive:'trust can be rebuilt',negative:'an old hurt has not loosened its hold',conditional:'Listen to what remains unspoken before you choose'};
+ if(/find|where|missing|lost|search|locat/.test(q))return {subject:'what you seek',action:'find',stakes:'the search',positive:'a clue is near',negative:'an essential truth is being concealed',conditional:'What is hidden may become visible through a change of approach'};
+ if(/battle|fight|war|enemy|victory|defeat/.test(q))return {subject:'the coming conflict',action:'prevail',stakes:'the conflict',positive:'bold action may turn the struggle',negative:'the cost of force is rising',conditional:'Strength without discernment risks becoming the enemy'};
+ if(/choose|decision|should|path|option/.test(q))return {subject:'the choice before you',action:'choose',stakes:'the choice',positive:'one path is beginning to open',negative:'a hidden consequence shadows the decision',conditional:'The choice cannot be made safely by habit alone'};
+ return {subject:'the matter you have brought before the bones',action:'move forward',stakes:'the matter',positive:'the balance may yet shift in your favour',negative:'an unseen cost presses upon the outcome',conditional:'The answer depends upon which influence you heed'};
+}
+function getPattern(){const sorted=[...bones].sort((a,b)=>(b.intensity/b.die)-(a.intensity/a.die));
+ let contacts=[],connected=new Set();for(let i=0;i<bones.length;i++)for(let j=i+1;j<bones.length;j++)if(contact(bones[i],bones[j])){contacts.push([bones[i],bones[j]]);connected.add(bones[i]);connected.add(bones[j])}
+ const zones={};for(const b of bones)zones[zone(b.x,b.y)]=(zones[zone(b.x,b.y)]||0)+1;
+ const max=Math.max(...Object.values(zones));const dominant=Object.keys(zones).filter(z=>zones[z]===max);
+ const isolated=bones.filter(b=>!connected.has(b));
+ const pointed=[];for(const a of bones.filter(b=>b.id==='raven'))for(const b of bones.filter(b=>b!==a)){
+ let angle=Math.atan2(b.y-a.y,b.x-a.x)-a.angle,delta=Math.atan2(Math.sin(angle),Math.cos(angle));if(Math.hypot(b.x-a.x,b.y-a.y)<125&&Math.abs(delta)<.45)pointed.push([a,b]);}
+ return{sorted,contacts,isolated,dominant,pointed};
+}
+function readableRoll(b){return b.name+' in '+zone(b.x,b.y)+' ('+b.intensity+'/'+b.die+')'}
+function generateOffline(p){const theme=themeFor($('question').value),lead=p.sorted[0],weak=p.sorted[p.sorted.length-1],strongZone=zone(lead.x,lead.y),weakZone=zone(weak.x,weak.y);
+ let leadPhrase=lead.zones[strongZone],weakPhrase=weak.zones[weakZone],lines=[];
+ lines.push('The '+lead.name+' speaks first. Its '+lead.intensity+' of '+lead.die+' marks it as the strongest voice in this casting. In '+strongZone+', it reveals that '+leadPhrase+'. This is the force now shaping '+theme.subject+'.');
+ if(p.contacts.length){let [a,b]=p.contacts.sort((x,y)=>(y[0].intensity/y[0].die+y[1].intensity/y[1].die)-(x[0].intensity/x[0].die+x[1].intensity/x[1].die))[0];lines.push('The '+a.name+' and '+b.name+' lie touching. '+a.essence+' has become entangled with '+b.essence+'. They cannot be read separately: '+a.zones[zone(a.x,a.y)]+' even as '+b.zones[zone(b.x,b.y)]+'.');}
+ else if(p.sorted.length>1){let b=p.sorted[1];lines.push('Across the field, the '+b.name+' answers from '+zone(b.x,b.y)+': '+b.zones[zone(b.x,b.y)]+'. Its voice strengthens or contests the first omen.');}
+ if(p.dominant.length===1&&p.dominant[0]!=='Present')lines.push('The bones gather most thickly in '+p.dominant[0]+'. Seek the heart of '+theme.stakes+' there, rather than where your eyes first turn.');
+ if(p.isolated.length){let b=p.isolated[0];lines.push('Apart from the others rests the '+b.name+'. In its isolation it conceals a neglected truth: '+b.zones[zone(b.x,b.y)]+'. What is overlooked here may matter more than what is loudly proclaimed.');}
+ if(p.pointed.length){let [a,b]=p.pointed[0];lines.push('The Raven’s Talon points toward the '+b.name+'. Its omen of ending now falls across '+b.essence+'.');}
+ if(weak!==lead)lines.push('The '+weak.name+' speaks faintly from '+weakZone+': '+weakPhrase+'. This is the part of the omen most easily missed.');
+ let threat=p.sorted.some(b=>b.id==='raven'&&['Future','Flesh','Hidden'].includes(zone(b.x,b.y)))||p.sorted.some(b=>b.id==='serpent'&&['Flesh','Hidden'].includes(zone(b.x,b.y)));
+ let hope=p.sorted.some(b=>['wolf','deer','serpent','owl'].includes(b.id)&&zone(b.x,b.y)==='Future'&&b.intensity/b.die>=.5);
+ let direction=threat&&hope?'The bones show both a hazard and a way through it':threat?theme.negative:hope?theme.positive:theme.conditional;
+ let answer='';if(threat&&hope)answer='You may '+theme.action+', but the '+lead.short.toLowerCase()+' must be understood before the price is paid.';
+ else if(threat)answer='Do not mistake the wish to '+theme.action+' for a promise that you will. '+theme.conditional+'.';
+ else if(hope)answer='The way to '+theme.action+' has not closed. '+theme.conditional+'.';
+ else answer=theme.conditional+'. The '+lead.name+' holds the stronger claim, while the '+weak.name+' warns what might be forgotten.';
+ let ending=direction+'. '+answer;
+ return{paragraphs:lines,ending};
+}
+async function maybeAI(pattern,current){if(!$('aiMode').checked)return;const q=$('question').value.trim();$('aiStatus').textContent='Asking Gemini to interpret the casting…';
+ const payload={question:q,bones:bones.map(b=>({name:b.name,die:b.die,intensity:b.intensity,realm:zone(b.x,b.y),essence:b.essence,meaning:b.zones[zone(b.x,b.y)]})),touching:pattern.contacts.map(([a,b])=>[a.name,b.name]),isolated:pattern.isolated.map(b=>b.name),dominant:pattern.dominant,ravenPointsAt:pattern.pointed.map(([a,b])=>b.name)};
+ try{let res=await fetch((localStorage.getItem('boneOracleAiEndpoint')||'/api/interpret'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:AbortSignal.timeout(28000)});if(!res.ok){let problem=await res.json().catch(()=>({}));throw Error(problem.error||'Gemini unavailable ('+res.status+')')}let data=await res.json();if(typeof data.reading!=='string'||!data.reading.trim())throw Error('Empty response');if(current!==version)return;
+ const chunks=data.reading.trim().split(/\n\s*\n/);$('interpretation').innerHTML=chunks.map(c=>'<p>'+escapeHTML(c)+'</p>').join('');copyText=($('question').value.trim()||'Open reading')+'\n\n'+pattern.sorted.map(readableRoll).join('\n')+'\n\n'+data.reading;$('aiStatus').textContent='Gemini interpretation · grounded in this cast';
+ }catch(err){if(current!==version)return;$('aiStatus').textContent='Gemini unavailable: '+err.message+'. Your offline reading remains visible.';}
+}
+function reveal(){if(!bones.length)return;const current=++version;const p=getPattern();
+ $('touches').textContent=p.contacts.length?p.contacts.length+' LINKED PAIR'+(p.contacts.length===1?'':'S'):'NO TOUCHING BONES';$('counter').textContent=bones.length+' BONES';
+ $('readingIntro').textContent=($('question').value.trim()?'“'+$('question').value.trim()+'”':'An open reading')+' — tap a bone below to examine its meaning.';
+ $('bonesList').innerHTML='';
+ p.sorted.forEach((b,i)=>{let z=zone(b.x,b.y),strength=b.intensity/b.die,tone=strength>=.7?'powerful':strength<=.34?'faint':'measured';let el=document.createElement('div');el.className='bone-row';el.innerHTML='<strong>'+(i+1)+'. '+escapeHTML(b.name)+'</strong><span>'+z+' · intensity '+b.intensity+'/'+b.die+' · '+tone+' influence</span>';el.onclick=()=>{document.querySelectorAll('.bone-row').forEach(x=>x.classList.remove('active'));el.classList.add('active');$('matCaption').textContent=b.name+': '+b.zones[zone(b.x,b.y)]+'.'};$('bonesList').appendChild(el)});
+ const offline=generateOffline(p);$('interpretation').innerHTML=offline.paragraphs.map(t=>'<p>'+escapeHTML(t)+'</p>').join('')+'<div class="omen">“'+escapeHTML(offline.ending)+'”</div>';
+ copyText=($('question').value.trim()||'Open reading')+'\n\n'+p.sorted.map(readableRoll).join('\n')+'\n\n'+offline.paragraphs.join('\n\n')+'\n\n'+offline.ending;
+ $('aiStatus').textContent='Offline interpretation · calculated from the cast';maybeAI(p,current);
+}
+function escapeHTML(s){return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;')}
+function reset(){version++;bones=[];running=false;$('phase').textContent='AWAITING THE CAST';$('counter').textContent='0 BONES';$('touches').textContent='NO CONNECTIONS';$('matCaption').textContent='The cloth lies empty. Ask, and cast.';$('readingIntro').textContent='When the bones come to rest, their omens will be written here.';$('bonesList').innerHTML='';$('interpretation').innerHTML='';copyText='';}
+for(let n=2;n<=6;n++){let btn=document.createElement('button');btn.textContent=n;btn.className=n===count?'active':'';btn.onclick=()=>{count=n;document.querySelectorAll('#counts button').forEach(b=>b.classList.toggle('active',Number(b.textContent)===n))};$('counts').append(btn)}
+for(const b of defs){let btn=document.createElement('button');btn.className='bone-check';btn.innerHTML=b.name+'<br><small>d'+b.die+'</small>';btn.onclick=()=>{if(!$('manual').checked)return;if(manual.has(b.id)){manual.delete(b.id);btn.classList.remove('active')}else{manual.add(b.id);btn.classList.add('active')}updateNote()};$('boneSelect').append(btn)}
+function updateNote(){document.querySelectorAll('.bone-check').forEach((btn,i)=>{btn.style.opacity=$('manual').checked?1:.38;btn.style.cursor=$('manual').checked?'pointer':'default'});$('selectionNote').textContent=$('manual').checked?'Selected bones form the pool for '+count+' throws (repeats allowed).':'The Oracle chooses the bones by rolling a d6 for each.'}
+$('aiMode').onchange=()=>{if(bones.length&&!running)reveal()};$('apiUrl').value=localStorage.getItem('boneOracleAiEndpoint')||'';$('apiUrl').addEventListener('change',()=>{const u=$('apiUrl').value.trim();if(u&&!/^https:\/\//.test(u)){alert('Enter an HTTPS URL');return;}localStorage.setItem('boneOracleAiEndpoint',u.replace(/\/$/,''));});$('manual').onchange=updateNote;updateNote();$('cast').onclick=cast;$('clear').onclick=reset;
+$('copy').onclick=async()=>{if(!copyText)return;try{await navigator.clipboard.writeText(copyText);$('copy').textContent='COPIED';setTimeout(()=>$('copy').textContent='COPY READING',1600)}catch(e){alert('Clipboard unavailable in this browser.')}};
+function pointer(ev){let rect=canvas.getBoundingClientRect();return{x:(ev.clientX-rect.left)*760/rect.width,y:(ev.clientY-rect.top)*760/rect.height}}
+canvas.addEventListener('pointerdown',ev=>{if(running)return;let p=pointer(ev);for(let i=bones.length-1;i>=0;i--)if(Math.hypot(bones[i].x-p.x,bones[i].y-p.y)<38){drag=bones[i];drag.vx=drag.vy=drag.av=0;canvas.setPointerCapture(ev.pointerId);$('matCaption').textContent=drag.name+' — moving through the field';break}});
+canvas.addEventListener('pointermove',ev=>{if(!drag)return;let p=pointer(ev),dx=p.x-C,dy=p.y-C,d=Math.hypot(dx,dy);if(d>350){p.x=C+dx/d*350;p.y=C+dy/d*350}drag.x=p.x;drag.y=p.y});
+function endDrag(){if(!drag)return;drag=null;reveal();$('matCaption').textContent='The field has shifted. Its interpretation has changed.'}
+canvas.addEventListener('pointerup',endDrag);canvas.addEventListener('pointercancel',endDrag);
+raf=requestAnimationFrame(loop);paint();
+})();
+</script>
+</body></html>
