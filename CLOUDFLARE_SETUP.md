@@ -2,6 +2,8 @@
 
 The GitHub Pages release and the Cloudflare deployment are separate. The upgraded website remains compatible with the current Worker. The steps here require access to your existing Cloudflare account; they were prepared, not performed, as part of the GitHub release.
 
+For deployment through GitHub without signing in through the shared browser, follow [GITHUB_DEPLOY.md](./GITHUB_DEPLOY.md). That manual workflow can provision Turnstile and deploy all Worker protections together after the restricted account token and account ID are entered privately into GitHub Actions secrets. No token belongs in chat or source code.
+
 ## 1. Preserve the working service
 
 Open the existing **bone-oracle-ai** Worker. Keep its current deployed version available for rollback, retain the `GEMINI_API_KEY` secret, and note its working `GEMINI_MODEL` setting. No new Gemini key is needed. Do not paste a key into chat, the website, GitHub or a command-line argument.
