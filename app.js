@@ -1,20 +1,22 @@
-import {BONES,FIELD,REALMS,SHAPES,realmAt,positionBand,createCast,stepPhysics,isSettled,analyseCast,offlineReading,hitBone,serializeBones,restoreBones,castPayload,validateEndpoint} from './core.js?v=3.0.0';
-import {CastingJournal,safeGet,safeSet} from './journal.js?v=3.0.0';
+import {BONES,FIELD,REALMS,SHAPES,realmAt,positionBand,createCast,stepPhysics,isSettled,analyseCast,offlineReading,hitBone,serializeBones,restoreBones,castPayload,validateEndpoint} from './core.js?v=3.1.0';
+import {CastingJournal,safeGet,safeSet} from './journal.js?v=3.1.0';
+import {createCrystal} from './crystal.js?v=3.1.0';
 const DEFAULT_ENDPOINT='https://bone-oracle-ai.sladeykins.workers.dev';
 export function createOracle(win){
  const doc=win.document,$=id=>doc.getElementById(id),canvas=$('mat'),ctx=canvas.getContext('2d');
  let storage;try{storage=win.localStorage;}catch{storage={getItem:()=>null,setItem:()=>{throw Error('Storage unavailable');}};}
  const journal=new CastingJournal(storage),manual=new Set(),images=new Map();
  const state={bones:[],count:4,running:false,selected:null,held:null,version:0,current:null,reading:'',source:'offline',request:null,frame:0,last:0,elapsed:0,accumulator:0,config:null,configEndpoint:'',widget:null,lastAI:0};
- let revealTimer=0,cooldownTimer=0,dragStart=null,notesTimer=0;
+ let cooldownTimer=0,dragStart=null,notesTimer=0;
  const media=query=>win.matchMedia?.(query)?.matches??false;
  const reduced=()=>media('(prefers-reduced-motion: reduce)');
  const uuid=()=>win.crypto?.randomUUID?.()||'cast-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10);
  const el=(tag,className,text)=>{const node=doc.createElement(tag);if(className)node.className=className;if(text!==undefined)node.textContent=text;return node;};
  const announce=text=>{$('announcement').textContent=text;};
+ const crystal=createCrystal(win,{animated:()=>$('animatedReveal').checked,reduced,announce});
  function endpoint(){return validateEndpoint(safeGet(storage,'boneOracleAiEndpoint',DEFAULT_ENDPOINT)||DEFAULT_ENDPOINT);}
  function updateJournalCount(){$('journalCount').textContent=journal.entries.length;}
- function cancelRequest(){state.version++;state.request?.abort();state.request=null;win.clearTimeout(revealTimer);$('aiStatus').classList.remove('loading');$('skipReveal').hidden=true;}
+ function cancelRequest(){state.version++;state.request?.abort();state.request=null;crystal.finish();$('aiStatus').classList.remove('loading');}
  function setRunning(running){state.running=running;$('cast').disabled=running;$('askAI').disabled=running;$('question').disabled=running;$('context').disabled=running;$('phase').classList.toggle('moving',running);$('fieldGlow').classList.toggle('active',running);}
  $('aiMode').checked=safeGet(storage,'boneOracleUseAI','true')==='true';
  $('animatedReveal').checked=safeGet(storage,'boneOracleAnimated','true')==='true';
@@ -58,7 +60,7 @@ export function createOracle(win){
  function finishCast(){for(const b of state.bones){b.vx=b.vy=b.av=b.vz=b.z=0;}for(let i=0;i<12;i++)stepPhysics(state.bones,0);setRunning(false);$('phase').textContent='CASTING COMPLETE';$('matCaption').textContent='Select a bone to study its omen. Enable Move bones to arrange the field.';renderReading(true);announce('The bones have settled. Your reading is ready.');draw();}
  function cast(){if(state.running)return;
   try{state.bones=createCast(state.count,$('manual').checked?[...manual]:null);}catch(err){$('castNotice').textContent=err.message;return;}
-  cancelRequest();state.selected=null;state.held=null;state.last=0;state.elapsed=0;state.accumulator=0;
+  cancelRequest();crystal.prepare();state.selected=null;state.held=null;state.last=0;state.elapsed=0;state.accumulator=0;
   state.current={id:uuid(),created:new Date().toISOString(),question:$('question').value.trim(),context:$('context').value.trim(),notes:'',starred:false,amended:false};
   state.reading='';state.source='offline';$('castNotice').textContent='';$('interpretation').replaceChildren();$('bonesList').replaceChildren();$('boneInspector').hidden=true;$('emptyReading').hidden=false;$('readingActions').hidden=true;$('saveStatus').textContent='';$('readingIntro').textContent='The omens are taking shape…';$('aiStatus').textContent='The bones are falling. The field will decide their realms.';$('sourceLabel').textContent='THE ORACLE IS LISTENING';$('sourceLabel').classList.remove('gemini');$('phase').textContent='BONES IN MOTION';$('counter').textContent=state.bones.length+' bones';$('touches').textContent='Reading the field';$('formation').textContent='Unsettled';$('matCaption').textContent='The bones rise, tumble and settle into their realms.';setRunning(true);
   if(media('(max-width: 720px)'))$('field').scrollIntoView({behavior:reduced()?'auto':'smooth',block:'start'});
@@ -69,17 +71,17 @@ export function createOracle(win){
  function renderBoneRows(pattern){$('bonesList').replaceChildren();
   for(const b of pattern.sorted){const button=el('button','bone-row');button.type='button';button.dataset.uid=b.uid;button.setAttribute('aria-pressed',String(b===state.selected));button.classList.toggle('active',b===state.selected);const image=el('img');image.src='./assets/'+b.id+'.webp';image.alt='';const text=el('span'),ratio=b.intensity/b.die;text.append(el('strong','',boneLabel(b)),el('small','',realmAt(b.x,b.y)+' · '+b.intensity+'/'+b.die+' · '+(ratio>=.7?'powerful':ratio<=.34?'faint':'measured')));button.append(image,text);button.onclick=()=>inspect(b);$('bonesList').append(button);}
  }
- function showProphecy(text,source,animate=false){$('interpretation').replaceChildren();win.clearTimeout(revealTimer);
-  const chunks=text.trim().split(/\n\s*\n/),motion=animate&&$('animatedReveal').checked&&!reduced();
-  chunks.forEach((chunk,i)=>{const node=el('p',i===chunks.length-1?'omen':'',chunk.replace(/^\*\*(.*?)\*\*$/,'$1'));if(motion){node.classList.add('ink-reveal');node.style.setProperty('--delay',i*220+'ms');}$('interpretation').append(node);});
-  $('skipReveal').hidden=!motion;$('sourceLabel').textContent=source==='gemini'?'GEMINI · THE PROPHECY':'THE OFFLINE ORACLE';$('sourceLabel').classList.toggle('gemini',source==='gemini');
-  if(motion)revealTimer=win.setTimeout(()=>{$('skipReveal').hidden=true;announce('The Gemini prophecy has been revealed.');},chunks.length*220+900);
+ function showProphecy(text,source,animate=false){$('interpretation').replaceChildren();
+  const chunks=text.trim().split(/\n\s*\n/);
+  chunks.forEach((chunk,i)=>$('interpretation').append(el('p',i===chunks.length-1?'omen':'',chunk.replace(/^\*\*(.*?)\*\*$/,'$1'))));
+  $('sourceLabel').textContent=source==='gemini'?'GEMINI · THE PROPHECY':'THE OFFLINE ORACLE';$('sourceLabel').classList.toggle('gemini',source==='gemini');
+  crystal.show(text,source,animate);
  }
  function keepCast(){if(!state.current)return;const ok=journal.upsert({...state.current,bones:serializeBones(state.bones),reading:state.reading,source:state.source});updateJournalCount();$('saveStatus').textContent=ok?'Saved to your casting journal'+(state.current.amended?' · arrangement revised':'')+'.':'Kept for this session. Browser storage is unavailable or full; export your journal.';}
  function renderReading(ask=false){if(!state.bones.length)return;cancelRequest();const pattern=analyseCast(state.bones),reading=offlineReading(state.bones,state.current.question,state.current.context);
-  state.reading=[...reading.paragraphs,reading.ending].join('\n\n');state.source='offline';$('emptyReading').hidden=true;$('readingActions').hidden=false;$('readingIntro').textContent=state.current.question?'“'+state.current.question+'”':'An open reading';$('counter').textContent=state.bones.length+' bones';$('touches').textContent=pattern.contacts.length?pattern.contacts.length+' linked '+(pattern.contacts.length===1?'pair':'pairs'):'No touching bones';$('formation').textContent=pattern.formation?pattern.formation+' formation':'No clear formation';renderBoneRows(pattern);showProphecy(state.reading,'offline');$('aiStatus').textContent='Read from the cast · every omen follows its bones and placement.';keepCast();if(state.selected)inspect(state.selected);if(ask&&$('aiMode').checked)void askGemini();}
+  state.reading=[...reading.paragraphs,reading.ending].join('\n\n');state.source='offline';$('emptyReading').hidden=true;$('readingActions').hidden=false;$('readingIntro').textContent=state.current.question?'“'+state.current.question+'”':'An open reading';$('counter').textContent=state.bones.length+' bones';$('touches').textContent=pattern.contacts.length?pattern.contacts.length+' linked '+(pattern.contacts.length===1?'pair':'pairs'):'No touching bones';$('formation').textContent=pattern.formation?pattern.formation+' formation':'No clear formation';renderBoneRows(pattern);showProphecy(state.reading,'offline',ask);$('aiStatus').textContent='Read from the cast · every omen follows its bones and placement.';keepCast();if(state.selected)inspect(state.selected);if(ask&&$('aiMode').checked)void askGemini();}
  function applyMovement(){if(!state.current||state.running)return;cancelRequest();state.current.amended=true;for(let i=0;i<8;i++)stepPhysics(state.bones,0,state.selected);renderReading(false);draw();}
- function reset(){cancelRequest();if(state.frame)win.cancelAnimationFrame(state.frame);state.frame=0;state.bones=[];state.selected=state.held=state.current=null;state.reading='';setRunning(false);$('phase').textContent='AWAITING THE CAST';$('counter').textContent='0 bones';$('touches').textContent='No connections';$('formation').textContent='An empty field';$('bonesList').replaceChildren();$('interpretation').replaceChildren();$('emptyReading').hidden=false;$('readingActions').hidden=true;$('boneInspector').hidden=true;$('readingIntro').textContent='When the bones come to rest, their omens will be written here.';$('aiStatus').textContent='The offline Oracle is always available.';$('sourceLabel').textContent='THE ORACLE IS QUIET';$('sourceLabel').classList.remove('gemini');$('matCaption').textContent='The cloth lies empty. Ask, and cast.';$('saveStatus').textContent='';canvas.classList.remove('dragging');draw();}
+ function reset(){cancelRequest();crystal.clear();if(state.frame)win.cancelAnimationFrame(state.frame);state.frame=0;state.bones=[];state.selected=state.held=state.current=null;state.reading='';setRunning(false);$('phase').textContent='AWAITING THE CAST';$('counter').textContent='0 bones';$('touches').textContent='No connections';$('formation').textContent='An empty field';$('bonesList').replaceChildren();$('interpretation').replaceChildren();$('emptyReading').hidden=false;$('readingActions').hidden=true;$('boneInspector').hidden=true;$('readingIntro').textContent='When the bones come to rest, their omens will be written here.';$('aiStatus').textContent='The offline Oracle is always available.';$('sourceLabel').textContent='THE ORACLE IS QUIET';$('sourceLabel').classList.remove('gemini');$('matCaption').textContent='The cloth lies empty. Ask, and cast.';$('saveStatus').textContent='';canvas.classList.remove('dragging');draw();}
  // /config is optional: the previous Worker only supports POST at its root.
  async function getConfig(url,signal){if(state.configEndpoint===url&&state.config)return state.config;
   const controller=new win.AbortController(),forwardAbort=()=>controller.abort();signal.addEventListener('abort',forwardAbort,{once:true});const timer=win.setTimeout(()=>controller.abort(),8000);
@@ -132,7 +134,6 @@ export function createOracle(win){
  function endDrag(event){if(!state.held)return;const moved=dragStart?.moved;state.held=null;dragStart=null;canvas.classList.remove('dragging');if(event&&canvas.hasPointerCapture?.(event.pointerId))canvas.releasePointerCapture(event.pointerId);if(moved){applyMovement();$('matCaption').textContent='The field has shifted. The revised omen is saved.';}else{inspect(state.selected);$('askAI').disabled=false;}}
  canvas.addEventListener('pointerup',endDrag);canvas.addEventListener('pointercancel',endDrag);canvas.addEventListener('lostpointercapture',endDrag);
  canvas.addEventListener('keydown',event=>{if(state.running||!state.selected)return;const d=event.shiftKey?24:6,offset={ArrowLeft:[-d,0],ArrowRight:[d,0],ArrowUp:[0,-d],ArrowDown:[0,d]}[event.key];if(!offset)return;event.preventDefault();state.selected.x+=offset[0];state.selected.y+=offset[1];applyMovement();});
- $('skipReveal').onclick=()=>{doc.querySelectorAll('.ink-reveal').forEach(n=>{n.classList.remove('ink-reveal');n.style.removeProperty('--delay');});win.clearTimeout(revealTimer);$('skipReveal').hidden=true;};
  $('copy').onclick=async()=>{if(!state.reading)return;const text=(state.current.question||'Open reading')+'\n\n'+state.bones.map(b=>boneLabel(b)+' in '+realmAt(b.x,b.y)+' ('+b.intensity+'/'+b.die+')').join('\n')+'\n\n'+state.reading;
   try{await win.navigator.clipboard.writeText(text);$('copy').textContent='Copied';win.setTimeout(()=>$('copy').textContent='Copy',1500);}catch{$('aiStatus').textContent='Clipboard unavailable. You can select the reading text or export the journal.';}
  };
@@ -157,6 +158,6 @@ export function createOracle(win){
  // Same-origin shell only: never cache Gemini requests, questions, or API responses.
  if('serviceWorker' in win.navigator)win.addEventListener('load',()=>void win.navigator.serviceWorker.register('./sw.js').catch(()=>{}),{once:true});
  countsUI();updateJournalCount();resize();
- return {state,journal,cast,reset,finishCast,askGemini,restoreEntry,renderReading,draw};
+ return {state,journal,cast,reset,finishCast,askGemini,restoreEntry,renderReading,draw,crystal};
 }
 if(typeof window!=='undefined')createOracle(window);

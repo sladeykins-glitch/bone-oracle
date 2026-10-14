@@ -1,0 +1,111 @@
+/* The inscription rests beneath black glass, then rises out of drifting mist. */
+.crystal-card{margin:20px 0 28px;min-width:0}
+.crystal-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 1px 11px}
+.crystal-heading h3{font:11px var(--title);font-weight:400;letter-spacing:1.7px;color:#c2b287;margin:0}
+.crystal-source{font:8px/1.5 var(--title);letter-spacing:1.1px;color:#92a893;text-align:right}
+.crystal-frame{
+ position:relative;padding:5px;border:1px solid #9c88554d;border-radius:18px;
+ background:linear-gradient(140deg,#b6a16a55,#282f2230 24%,#a08b4d4a 58%,#111c14 80%,#d1b97a45);
+ box-shadow:0 12px 30px #0007,inset 0 0 0 2px #0a0e0a,0 0 18px #70ac6e0a;
+}
+.crystal-frame:before,.crystal-frame:after{
+ content:'✧';position:absolute;left:50%;transform:translateX(-50%);z-index:3;
+ font:12px Georgia,serif;line-height:1;color:#b9a568a6;pointer-events:none;
+}
+.crystal-frame:before{top:-7px}.crystal-frame:after{bottom:-7px}
+.crystal-screen{
+ position:relative;isolation:isolate;overflow-x:hidden;overflow-y:auto;perspective:700px;max-height:480px;
+ min-height:244px;display:flex;align-items:center;justify-content:center;
+ border-radius:13px;border:1px solid #c8d3ae25;
+ background:
+  linear-gradient(117deg,transparent 5%,#abc4a508 5.2%,transparent 29%,#c3ddbb07 29.2%,transparent 61%),
+  radial-gradient(ellipse at 50% 106%,#173b29 0%,#0b1c15 35%,#030a07 66%,#010403 100%);
+ box-shadow:inset 0 2px 3px #e5f6d516,inset 0 0 28px 10px #000d,inset 0 -1px 0 #a9d6a52a;
+}
+.crystal-screen:before{
+ content:'';position:absolute;z-index:-1;pointer-events:none;inset:-28%;
+ background:
+  radial-gradient(ellipse at 24% 62%,#8dc7a133 0%,transparent 27%),
+  radial-gradient(ellipse at 75% 72%,#589d7b38 0%,transparent 26%),
+  radial-gradient(ellipse at 52% 88%,#c3d59b1f 0%,transparent 30%);
+ filter:blur(17px);opacity:.36;transform:translate3d(0,8%,0) scale(1.05);
+}
+.crystal-screen:after{
+ content:'';position:absolute;z-index:2;pointer-events:none;inset:0;border-radius:inherit;
+ background:
+  linear-gradient(153deg,#deecd00b 0%,#cfe1c705 18%,transparent 18.4%,transparent 64%,#b2cbb508 65%,transparent 81%),
+  radial-gradient(ellipse at 50% -55%,#dce4bb10 0%,transparent 61%);
+ box-shadow:inset 1px 1px 0 #d9e7bb16,inset -1px -1px 0 #000c;
+}
+.crystal-verse{
+ position:relative;z-index:1;width:100%;margin:0;padding:38px 20px;
+ font:400 22px/1.55 var(--prose);text-align:center;white-space:pre-line;
+ color:#d9edb3;text-wrap:pretty;overflow-wrap:anywhere;
+ text-shadow:0 0 1px #e6f8be,0 0 11px #9abf6a59,0 0 26px #5aab7133;
+}
+.crystal-word{display:inline-block;max-width:100%;white-space:normal;overflow-wrap:anywhere;transform-origin:50% 100%;vertical-align:baseline}
+.crystal-passage{display:inline-block}
+.crystal-screen .ink-reveal{
+ animation:crystal-ink-rise 2s cubic-bezier(.18,.63,.22,1) both;
+ animation-delay:var(--delay,180ms);
+}
+.crystal-screen[data-state=revealing]:before{animation:crystal-mist-rise 6s ease-out both}
+.crystal-screen[data-state=waiting]:before{animation:crystal-mist-gather 4s ease-in-out infinite alternate}
+.crystal-screen[data-state=waiting] .crystal-verse{font-size:18px;font-style:italic;color:#97af99;text-shadow:0 0 15px #91bc6f30}
+.crystal-screen[data-length=long]{align-items:flex-start;scrollbar-width:thin}
+.crystal-screen[data-length=long] .crystal-verse{font-size:18px;line-height:1.6;padding:30px 18px}
+.crystal-controls{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 20px;margin-top:10px}
+.crystal-controls .text-button{font-size:9px;min-height:40px;padding:7px 2px;color:#b7c59f}
+.crystal-controls .text-button:hover{color:#edf3c5}
+.crystal-controls .text-button:disabled{opacity:.4}
+.crystal-dialog{
+ width:min(870px,calc(100% - 24px));max-height:94dvh;overflow:auto;
+ padding:28px 32px 24px;background:radial-gradient(ellipse at 50% 100%,#183023,#080f0c 70%);
+ border-color:#9d8a565e;box-shadow:0 30px 130px #000e,0 0 90px #40614316;
+}
+.crystal-dialog::backdrop{background:#010704e8;backdrop-filter:blur(9px)}
+.crystal-dialog .modal-heading{align-items:center;margin-bottom:30px}
+.crystal-dialog h2{font-size:18px;letter-spacing:2px}
+.crystal-dialog .crystal-source{display:block;text-align:left;margin-top:8px;letter-spacing:1.8px;font-size:9px}
+.crystal-dialog .crystal-frame{padding:9px;border-radius:38px}
+.crystal-dialog .crystal-screen{min-height:340px;max-height:min(580px,65dvh);border-radius:29px}
+.crystal-dialog .crystal-verse{max-width:690px;padding:65px 48px;font-size:clamp(24px,3.5vw,34px);line-height:1.65}
+.crystal-dialog .crystal-screen[data-length=long] .crystal-verse{font-size:24px;padding:40px 32px}
+.crystal-dialog .crystal-controls{margin-top:20px;gap:22px}
+.crystal-dialog .crystal-controls .text-button{font-size:11px}
+@keyframes crystal-ink-rise{
+ 0%{opacity:0;filter:blur(9px);transform:translate3d(var(--drift,0px),var(--rise,30px),-55px) rotateX(var(--turn,-7deg));color:#73956a;text-shadow:0 0 24px #b9e5a1aa}
+ 28%{opacity:.2;filter:blur(6px);color:#93bc83}
+ 58%{opacity:.82;filter:blur(2.3px);transform:translate3d(0,2px,18px) rotateX(0);color:#f0f5c9;text-shadow:0 0 5px #eaf8aebb,0 0 20px #a5da7c99,0 0 34px #78c78966}
+ 80%{opacity:1;filter:blur(.25px);transform:translate3d(0,-2px,5px);color:#e8f0ba}
+ 100%{opacity:1;filter:blur(0);transform:translate3d(0,0,0) rotateX(0);color:#d9edb3}
+}
+@keyframes crystal-mist-rise{
+ 0%{opacity:.22;transform:translate3d(-3%,20%,0) scale(1.02)}
+ 34%{opacity:.95;transform:translate3d(4%,-1%,0) scale(1.1)}
+ 70%{opacity:.55;transform:translate3d(-2%,-10%,0) scale(1.16)}
+ 100%{opacity:.36;transform:translate3d(0,8%,0) scale(1.05)}
+}
+@keyframes crystal-mist-gather{
+ from{opacity:.28;transform:translate3d(-3%,12%,0) scale(1.02)}
+ to{opacity:.6;transform:translate3d(3%,-4%,0) scale(1.1)}
+}
+@media(max-width:1249px) and (min-width:721px){
+ .crystal-card{max-width:660px;margin:25px auto 32px}
+ .crystal-screen{min-height:250px}.crystal-verse{font-size:26px;padding:42px 35px}
+}
+@media(max-width:720px){
+ .crystal-heading{margin-bottom:12px}.crystal-heading h3{font-size:10px}
+ .crystal-verse{font-size:23px;padding:34px 20px}.crystal-screen{min-height:260px}
+ .crystal-screen[data-length=long] .crystal-verse{font-size:19px}
+ .crystal-dialog{padding:21px 15px 18px}.crystal-dialog .modal-heading{margin-bottom:24px}
+ .crystal-dialog .crystal-frame{border-radius:23px;padding:5px}
+ .crystal-dialog .crystal-screen{min-height:330px;border-radius:18px}
+ .crystal-dialog .crystal-verse{font-size:26px;padding:45px 21px;line-height:1.6}
+ .crystal-dialog .crystal-screen[data-length=long] .crystal-verse{font-size:21px;padding:30px 18px}
+ .crystal-controls{gap:4px 17px}.crystal-controls .text-button{min-height:44px}
+}
+@media(prefers-reduced-motion:reduce){
+ .crystal-screen .ink-reveal,.crystal-screen:before{animation:none!important}
+ .crystal-screen .ink-reveal{opacity:1;filter:none;transform:none}
+}

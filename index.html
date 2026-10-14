@@ -5,11 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#111916">
 <meta name="description" content="Cast six ancient bones. Read their realms, hear the Oracle, and keep a journal of your omens.">
-<meta name="bone-oracle-version" content="3.0.0">
+<meta name="bone-oracle-version" content="3.1.0">
 <title>The Bone Oracle · Astragalomancy · Version 3</title>
 <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="./app.css?v=3.0.0">
-<script type="module" src="./app.js?v=3.0.0"></script>
+<link rel="stylesheet" href="./app.css?v=3.1.0">
+<link rel="stylesheet" href="./crystal.css?v=3.1.0">
+<script type="module" src="./app.js?v=3.1.0"></script>
 </head>
 <body>
 <a class="skip-link" href="#field">Skip to the casting field</a>
@@ -47,9 +48,14 @@
  <aside id="readingPanel" class="panel reading" aria-labelledby="readingTitle">
   <div class="panel-heading"><span class="section-number">02</span><h2 id="readingTitle">The Prophecy</h2></div>
   <p id="readingIntro" class="reading-intro">When the bones come to rest, their omens will be written here.</p>
+  <section id="crystalCard" class="crystal-card" aria-labelledby="crystalTitle" hidden>
+   <div class="crystal-heading"><h3 id="crystalTitle">The Final Omen</h3><span id="crystalSource" class="crystal-source"></span></div>
+   <div class="crystal-frame"><div id="crystalScreen" class="crystal-screen" aria-busy="false"><p id="crystalText" class="crystal-verse"></p></div></div>
+   <div class="crystal-controls"><button id="replayCrystal" class="text-button" type="button">Replay reveal</button><button id="enlargeCrystal" class="text-button" type="button">Enlarge crystal</button><button id="skipReveal" class="text-button" type="button" hidden>Reveal all</button></div>
+  </section>
   <div id="emptyReading" class="empty-reading"><span aria-hidden="true">✧</span><p>Six bones.<br>Six realms.<br>One living question.</p></div>
   <div id="bonesList" class="bone-list" aria-label="The bones in this cast"></div>
-  <div class="reading-mode"><span id="sourceLabel" class="source-label">THE ORACLE IS QUIET</span><button id="skipReveal" class="text-button" hidden>Reveal all</button></div>
+  <div class="reading-mode"><span id="sourceLabel" class="source-label">THE ORACLE IS QUIET</span></div>
   <p id="aiStatus" class="small ai-status" role="status">The offline Oracle is always available.</p>
   <div id="turnstileMount" hidden></div>
   <div id="interpretation" class="result"></div>
@@ -59,6 +65,11 @@
 </main>
 <footer>THE BONE ORACLE · VERSION 3 <span>Fictional divination for stories and reflection.</span></footer>
 <div id="announcement" class="sr-only" role="status" aria-live="polite"></div>
+<dialog id="crystalDialog" class="modal crystal-dialog" aria-labelledby="crystalDialogTitle" aria-describedby="crystalDialogText">
+ <div class="modal-heading"><div><h2 id="crystalDialogTitle">The Crystal Omen</h2><span id="crystalDialogSource" class="crystal-source"></span></div><button id="closeCrystal" class="close-modal" type="button" aria-label="Close crystal">×</button></div>
+ <div class="crystal-frame"><div id="crystalDialogScreen" class="crystal-screen" aria-busy="false"><p id="crystalDialogText" class="crystal-verse"></p></div></div>
+ <div class="crystal-controls"><button id="crystalDialogReplay" class="text-button" type="button">Replay reveal</button><button id="crystalDialogSkip" class="text-button" type="button" hidden>Reveal all</button></div>
+</dialog>
 <dialog id="settingsDialog" class="modal settings-modal" aria-labelledby="settingsTitle">
  <div class="modal-heading"><h2 id="settingsTitle">Oracle Settings</h2><button class="close-modal" data-close="settingsDialog" aria-label="Close settings">×</button></div>
  <label class="switch"><input id="aiMode" type="checkbox">Use Gemini after each cast</label><p class="small">Your question, story context and casting facts are sent through your Cloudflare Worker when Gemini is requested. The journal remains in this browser.</p>

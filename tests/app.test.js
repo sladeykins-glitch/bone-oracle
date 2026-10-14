@@ -59,3 +59,12 @@ test('hostile journal content is rendered as literal text, including questions a
 test('unsafe endpoint changes are rejected without replacing the saved endpoint',t=>{
  const {doc,win,click}=setup(t);click('openSettings');doc.getElementById('apiUrl').value='https://user:secret@example.com/?key=secret';click('saveSettings');assert.ok(doc.getElementById('settingsStatus').textContent.includes('credentials'));assert.equal(win.localStorage.getItem('boneOracleAiEndpoint'),null);
 });
+test('crystal replay and enlargement preserve the exact cast and journal without requesting Gemini',t=>{
+ let calls=0;const {app,doc,click}=setup(t,{fetch:async()=>{calls++;return new Response('',{status:503});}});
+ app.cast();const before=serializeBones(app.state.bones),entry=JSON.stringify(app.journal.entries[0]),reading=app.state.reading;
+ assert.equal(doc.getElementById('crystalCard').hidden,false);
+ click('replayCrystal');click('enlargeCrystal');click('crystalDialogReplay');click('closeCrystal');
+ assert.equal(calls,0);assert.deepEqual(serializeBones(app.state.bones),before);
+ assert.equal(JSON.stringify(app.journal.entries[0]),entry);assert.equal(app.state.reading,reading);
+ click('clear');assert.equal(doc.getElementById('crystalCard').hidden,true);assert.equal(doc.getElementById('crystalText').textContent,'');
+});
