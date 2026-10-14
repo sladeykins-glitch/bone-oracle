@@ -1,5 +1,5 @@
-const CACHE='bone-oracle-v3.1.0';
-const SHELL=['./','./index.html','./app.css?v=3.1.0','./app.js?v=3.1.0','./core.js?v=3.1.0','./journal.js?v=3.1.0','./crystal.js?v=3.1.0','./crystal.css?v=3.1.0','./assets/favicon.svg',...['raven','wolf','serpent','deer','owl','ancestor'].map(id=>'./assets/'+id+'.webp')];
+const CACHE='bone-oracle-v3.1.1';
+const SHELL=['./','./index.html','./app.css?v=3.1.1','./app.js?v=3.1.1','./core.js?v=3.1.1','./journal.js?v=3.1.1','./crystal.js?v=3.1.1','./crystal.css?v=3.1.1','./assets/favicon.svg',...['raven','wolf','serpent','deer','owl','ancestor'].map(id=>'./assets/'+id+'.webp')];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('bone-oracle-')&&key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()));});
 self.addEventListener('fetch',event=>{

@@ -14,7 +14,7 @@
 }
 .crystal-frame:before{top:-7px}.crystal-frame:after{bottom:-7px}
 .crystal-screen{
- position:relative;isolation:isolate;overflow-x:hidden;overflow-y:auto;perspective:700px;max-height:480px;
+ position:relative;isolation:isolate;overflow:hidden;perspective:700px;max-height:480px;
  min-height:244px;display:flex;align-items:center;justify-content:center;
  border-radius:13px;border:1px solid #c8d3ae25;
  background:
@@ -38,10 +38,11 @@
  box-shadow:inset 1px 1px 0 #d9e7bb16,inset -1px -1px 0 #000c;
 }
 .crystal-verse{
- position:relative;z-index:1;width:100%;margin:0;padding:38px 20px;
+ position:relative;z-index:1;width:100%;max-height:inherit;flex-shrink:0;overflow-y:auto;margin:0;padding:38px 20px;
  font:400 22px/1.55 var(--prose);text-align:center;white-space:pre-line;
  color:#d9edb3;text-wrap:pretty;overflow-wrap:anywhere;
  text-shadow:0 0 1px #e6f8be,0 0 11px #9abf6a59,0 0 26px #5aab7133;
+ scrollbar-width:thin;scrollbar-color:#71855c77 transparent;
 }
 .crystal-word{display:inline-block;max-width:100%;white-space:normal;overflow-wrap:anywhere;transform-origin:50% 100%;vertical-align:baseline}
 .crystal-passage{display:inline-block}
@@ -52,7 +53,7 @@
 .crystal-screen[data-state=revealing]:before{animation:crystal-mist-rise 6s ease-out both}
 .crystal-screen[data-state=waiting]:before{animation:crystal-mist-gather 4s ease-in-out infinite alternate}
 .crystal-screen[data-state=waiting] .crystal-verse{font-size:18px;font-style:italic;color:#97af99;text-shadow:0 0 15px #91bc6f30}
-.crystal-screen[data-length=long]{align-items:flex-start;scrollbar-width:thin}
+.crystal-screen[data-length=long]{align-items:flex-start}
 .crystal-screen[data-length=long] .crystal-verse{font-size:18px;line-height:1.6;padding:30px 18px}
 .crystal-controls{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 20px;margin-top:10px}
 .crystal-controls .text-button{font-size:9px;min-height:40px;padding:7px 2px;color:#b7c59f}

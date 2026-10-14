@@ -7,7 +7,7 @@ function setup(){const listeners={},cached=new Map(),puts=[],scope='https://slad
 }
 test('offline install includes only real shell and art files',async()=>{
  const h=setup(),pending=[];h.listeners.install({waitUntil:p=>pending.push(p)});await Promise.all(pending);assert.equal(h.added().length,15);
- assert.ok(h.added().includes('./crystal.js?v=3.1.0'));assert.ok(h.added().includes('./crystal.css?v=3.1.0'));
+ assert.ok(h.added().includes('./crystal.js?v=3.1.1'));assert.ok(h.added().includes('./crystal.css?v=3.1.1'));
  for(const name of h.added()){if(name==='./')continue;assert.ok(fs.existsSync(new URL('../'+name.replace(/^\.\//,'').split('?')[0],import.meta.url)),name+' is missing');}
 });
 test('Worker requests, POST bodies and non-shell query URLs are never intercepted or cached',()=>{
@@ -19,7 +19,7 @@ test('Worker requests, POST bodies and non-shell query URLs are never intercepte
  assert.equal(intercepts,0);assert.equal(h.puts.length,0);
 });
 test('same-origin static requests refresh the shell and serve cached files offline',async()=>{
- const h=setup(),request=new Request(h.scope+'app.js?v=3.1.0'),pending=[];let response;
+ const h=setup(),request=new Request(h.scope+'app.js?v=3.1.1'),pending=[];let response;
  h.listeners.fetch({request,respondWith:p=>response=p,waitUntil:p=>pending.push(p)});assert.equal((await response).status,200);await Promise.all(pending);assert.equal(h.puts.length,1);
  h.context.fetch=async()=>{throw Error('offline');};h.cached.set(request.url,new Response('cached app',{status:200}));h.listeners.fetch({request,respondWith:p=>response=p,waitUntil:()=>{}});assert.equal(await (await response).text(),'cached app');
 });
