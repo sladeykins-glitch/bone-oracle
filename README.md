@@ -1,30 +1,58 @@
-# The Bone Oracle
+# The Bone Oracle · Version 3
 
-Public interactive bone-casting site based on the Astragalomancy system. The physical simulation and offline interpretation run entirely in the browser.
+**Public website:** https://sladeykins-glitch.github.io/bone-oracle/
 
-**Website (after Pages deployment):** https://sladeykins-glitch.github.io/bone-oracle/
+A physical Astragalomancy caster with six realistic bone specimens, six casting realms, Gemini prophecies and a browser-local journal. GitHub Pages hosts the website; the Gemini key stays in a separate Cloudflare Worker.
 
-## GitHub Pages
-Repository → Settings → Pages → Deploy from a branch → `main` → `/(root)` → Save.
+## What changed in Version 3
 
-## Free-tier Gemini AI through Cloudflare Workers
+- Six transparent specimen sprites: Raven’s Talon (d4), Wolf Fang (d6), Serpent Vertebra (d8), Deer Rib (d10), Owl Skull Shard (d12), and Ancestor’s Jawbone (d20).
+- Collision hulls sampled from the artwork; different masses, angular impulses, cloth friction, airborne bounce and tumbling. Fixed simulation steps prevent frame-rate-dependent changes. The static mat is cached and the renderer sleeps when idle.
+- Animated Gemini paragraph reveals with **Reveal all** and reduced-motion support. The offline interpretation appears immediately; failed or stale AI replies cannot replace a newer cast.
+- Optional story context, closest-to-centre influence, relative intensity, geometric contact, ancestral links, Raven pointing, realm concentration, isolation, and approximate path/circle/cross readings.
+- An automatic journal of up to 100 casts on the current device, with exact placement, notes, favourites, search, restore, deletion undo and JSON export/import. AI updates the same entry. Imports are validated and all content is rendered as text.
+- Responsive controls, larger touch targets, a scrollable mobile cloth until **Move bones** is enabled, and keyboard/realm/rotation placement controls.
+- A service worker caches the site shell and artwork after a successful online visit. AI requests, questions and API responses are never cached. The journal is local to the browser; export it before clearing browser data or changing device.
 
-The repository contains **cloudflare-worker.js**. The Worker is not deployed automatically through GitHub Pages.
+## Rules preserved
 
-1. Sign up for Cloudflare at https://dash.cloudflare.com/.
-2. Open **Workers & Pages → Create → Worker** (the labels may vary), choose a unique Worker name and deploy the starter Worker.
-3. Open the Worker’s editor, replace the starter code with the contents of [cloudflare-worker.js](./cloudflare-worker.js), then deploy.
-4. Open **Worker Settings → Variables and Secrets**. Add a **secret** named `GEMINI_API_KEY` with your key from https://aistudio.google.com/apikey. Never add the secret to GitHub or browser JavaScript.
-5. In the same section, optionally add a **text variable** `GEMINI_MODEL` set to `gemini-2.5-flash`. The Worker defaults to this model. Availability of free Gemini calls depends on your Google API project's current free quota.
-6. Copy your Worker's `https://<your-name>.<your-subdomain>.workers.dev` URL. Open the GitHub Pages site and paste that URL into **Secure AI Endpoint**. Enable **Use Gemini AI interpretation** and cast the bones.
+The six bone definitions and 36 realm meanings are retained from the inspected site and checked against the original Astragalomancy reference. Random mode rolls a d6 for every specimen selection and permits repeated bones; every occurrence has its own identity and corresponding intensity die. Two to six bones are cast. Manual mode now casts each selected bone once, matching the reference’s instruction to choose relevant bones.
 
-The endpoint accepts POST requests, checks the public site's origin, validates casting inputs, applies a best-effort in-memory throttle, and never exposes your Gemini key in responses. **Before sharing widely**, add Cloudflare WAF/rate-limiting (or Turnstile) and set a conservative Gemini quota/budget. Client-side requests are not trustworthy; origin checks and the in-memory throttle alone are not strong abuse prevention.
+**Physical placement determines the realm:** centre = Present, left = Past, top = Spirits, right = Future, bottom = Flesh, beyond the realm ring = Hidden. There is no independent positioning d6 in this physical mode. Realm boundaries are unchanged. Higher relative intensity carries more emphasis; proximity and pattern add positional meaning without changing the die roll. Formation detection and collision hulls are geometric approximations. Readings remain fictional narrative divination.
 
-If Gemini errors or reaches its quota, the offline interpreter remains available. For personal/private tests, do not assume an unconfigured Worker is live.
+## Hosting and compatibility
 
-## Preservation of rules
-- Six bones (d4/d6/d8/d10/d12/d20).
-- 2–6 selections and intensity rolls.
-- The **physical simulation** derives realms from final positions instead of a separate positioning d6.
-- Contacts and isolation influence interpretation.
-- Readings are fictional narrative divination, not real-world predictions.
+GitHub Pages remains configured for `main` → `/(root)`. Publishing the frontend does **not** deploy the Cloudflare Worker. The frontend preserves the existing `boneOracleAiEndpoint` setting and defaults to `https://bone-oracle-ai.sladeykins.workers.dev`.
+
+The frontend works with the previous POST-only Worker. It first tries the optional `/config` endpoint; an old Worker’s refusal falls back to the existing POST flow. Deeper AI context and the server protections below require deploying the v3 Worker. The offline Oracle and journal work with either version.
+
+## Cloudflare changes requiring separate access
+
+See [CLOUDFLARE_SETUP.md](./CLOUDFLARE_SETUP.md) for the concrete deployment steps.
+
+`cloudflare-worker.js` is a self-contained bundle that can be pasted into the Cloudflare editor or deployed with Wrangler. It includes the exact tested casting rules so the server recomputes v3 realms, contacts, pointing and formations from validated coordinates. It also supports legacy cast payloads.
+
+Required for the v3 Worker:
+
+1. Deploy the updated Worker into the existing `bone-oracle-ai` service.
+2. Preserve the existing **secret** `GEMINI_API_KEY` and currently working model.
+3. Add the `RATE_LIMITER` binding. The included Wrangler config sets six requests per minute per IP and an `AGGREGATE_LIMITER` binding at 30 per minute per Cloudflare location.
+4. For public bot protection, create a Turnstile widget for `sladeykins-glitch.github.io`, add its public key as `TURNSTILE_SITE_KEY`, and its secret as `TURNSTILE_SECRET_KEY`. The frontend discovers this automatically; there is no API key field.
+
+The v3 Worker intentionally refuses AI requests if the rate-limit binding is missing or broken. Offline readings remain available. Origin checks are CORS controls, not authentication: a non-browser client can spoof an Origin. Cloudflare rate limits are location-scoped and approximate, not an absolute global spend cap. Keep conservative project quotas in Google and enable Turnstile for a public endpoint. Nothing in GitHub deploys or changes the existing Cloudflare account automatically.
+
+## Development and validation
+
+Node 22 or newer:
+
+```sh
+npm ci --ignore-scripts
+npm run build:worker
+npm test
+```
+
+There is no frontend build step. The generated Worker combines `core.js` with `worker-handler.js`; its consistency is checked by the test command. Edit those sources and regenerate the bundle when changing backend or rule logic.
+
+The automated suite covers the rules, 200 seeded physical casts, artwork geometry, journal persistence/imports, frontend interactions, legacy/new Worker compatibility, cancelled/stale requests, safe text rendering, API byte limits, rate limiting, Turnstile validation, upstream errors, and offline caching. The canvas renderer was also inspected with the actual WebP artwork. Full desktop/mobile browser layout QA and a live Gemini response were not verified in the release environment; the existing Worker returned Cloudflare HTTP 403/1010 to that environment. Worker tests use synthetic keys and mocked upstream services.
+
+All generated sprites are project assets in `assets/`; the generation brief is recorded in [assets/ARTWORK.md](./assets/ARTWORK.md). No real credentials are stored in this repository.

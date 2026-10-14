@@ -1,0 +1,26 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "bone-oracle-ai",
+  "main": "cloudflare-worker.js",
+  "compatibility_date": "2026-10-14",
+  "workers_dev": true,
+  "ratelimits": [
+    {
+      "name": "RATE_LIMITER",
+      "namespace_id": "3001",
+      "simple": {
+        "limit": 6,
+        "period": 60
+      }
+    },
+    {
+      "name": "AGGREGATE_LIMITER",
+      "namespace_id": "3002",
+      "simple": {
+        "limit": 30,
+        "period": 60
+      }
+    }
+  ],
+  "keep_vars": true
+}

@@ -1,0 +1,16 @@
+{
+  "name": "bone-oracle",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:worker": "node scripts/build-worker.mjs",
+    "test": "node scripts/build-worker.mjs --check && node --test tests/*.test.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "jsdom": "26.1.0"
+  }
+}
