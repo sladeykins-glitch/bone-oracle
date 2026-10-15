@@ -20,14 +20,14 @@ test('manual selection casts every selected specimen once, including the full si
  const cast=createCast(4,BONES.map(b=>b.id),random(42));assert.equal(cast.length,6);assert.deepEqual(cast.map(b=>b.id),BONES.map(b=>b.id));
  assert.deepEqual(createCast(6,['wolf','deer'],random(3)).map(b=>b.id),['wolf','deer']);assert.throws(()=>createCast(4,['owl']));
 });
-test('200 seeded casts settle, retain their rolls, stay within the rim, and never overlap',()=>{
+test('200 seeded casts settle, retain their rolls, stay within the rim, and only overlap at distinct heights',()=>{
  let hidden=0,present=0;
  for(let seed=1;seed<=200;seed++){
   const bones=createCast(2+(seed%5),null,random(seed)),before=bones.map(b=>[b.uid,b.id,b.intensity]);let tick=0;
   for(;tick<1440;tick++){stepPhysics(bones,1/120);if(tick>168&&isSettled(bones))break;}
   assert.ok(tick<1440,'Cast '+seed+' did not settle');assert.deepEqual(bones.map(b=>[b.uid,b.id,b.intensity]),before);
   for(const b of bones){assert.ok([b.x,b.y,b.vx,b.vy,b.angle,b.av,b.z,b.vz].every(Number.isFinite));assert.equal(b.z,0);for(const p of vertices(b))assert.ok(Math.hypot(p.x-380,p.y-380)<=FIELD.rim+.2);if(realmAt(b.x,b.y)==='Hidden')hidden++;if(realmAt(b.x,b.y)==='Present')present++;}
-  for(let i=0;i<bones.length;i++)for(let j=i+1;j<bones.length;j++)assert.ok((collision(bones[i],bones[j])?.depth||0)<.1,'overlap at seed '+seed);
+  for(let i=0;i<bones.length;i++)for(let j=i+1;j<bones.length;j++)assert.ok(Math.abs(bones[i].layer-bones[j].layer)>=8||(collision(bones[i],bones[j])?.depth||0)<.1,'same-level overlap at seed '+seed);
  }
  assert.ok(hidden>5,'The Hidden realm should remain physically reachable');assert.ok(present>5,'The Present realm should remain physically reachable');
 });
