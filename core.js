@@ -24,20 +24,32 @@ export function makeBody(def,index=0,random=Math.random){
  const shape=SHAPES[def.id],mass=shape.mass;
  return {...def,uid:'bone-'+(index+1),intensity:dieRoll(def.die,random),x:380,y:380,angle:random()*Math.PI*2,
  vx:0,vy:0,av:0,z:0,vz:0,tumble:random()*Math.PI*2,mass,invMass:1/mass,
- invInertia:12/(mass*(shape.width**2+shape.height**2)),shape};
+ invInertia:12/(mass*(shape.width**2+shape.height**2)),layer:0,shape};
 }
 export function createCast(count,selected=null,random=Math.random){
  const picked=selected?BONES.filter(b=>selected.includes(b.id)):null;
  if(picked&&(picked.length<2||picked.length>6))throw Error('Choose two to six bones.');
  if(!Number.isInteger(count)||count<2||count>6)throw Error('Cast two to six bones.');
  const n=picked?picked.length:count;
- const castAngle=random()*Math.PI*2;
+ // Each cast has its own release style. A handful or pouch of bones does not
+ // produce evenly spaced radial projectiles.
+ const originAngle=random()*Math.PI*2,originRadius=random()*64;
+ const originX=380+Math.cos(originAngle)*originRadius,originY=380+Math.sin(originAngle)*originRadius;
+ const clustered=random()<.48,drift=random()*Math.PI*2;
  return Array.from({length:n},(_,i)=>{
   const b=makeBody(picked?picked[i]:BONES[dieRoll(6,random)-1],i,random);
-  const heading=castAngle+i/n*Math.PI*2+(random()-.5)*.65,spread=45+random()*35,speed=65+random()*270;
-  b.x+=Math.cos(heading)*spread;b.y+=Math.sin(heading)*spread;
-  b.vx=Math.cos(heading)*speed+(random()-.5)*130;b.vy=Math.sin(heading)*speed+(random()-.5)*130;
-  b.av=(random()-.5)*15;b.z=18+random()*25;b.vz=110+random()*120;
+  const angle=random()*Math.PI*2,radius=Math.sqrt(random())*(clustered?43:90);
+  b.x=originX+Math.cos(angle)*radius;
+  b.y=originY+Math.sin(angle)*radius;
+  // Independent release directions, with a shared arm motion only as a bias.
+  const heading=clustered?drift+(random()-.5)*2.3:random()*Math.PI*2;
+  const speed=clustered?22+random()*145:85+random()*285;
+  b.vx=Math.cos(heading)*speed+(random()-.5)*88;
+  b.vy=Math.sin(heading)*speed+(random()-.5)*88;
+  b.av=(random()-.5)*18;
+  // Staggered heights create real opportunities for a late bone to bridge a pile.
+  b.z=22+random()*94;
+  b.vz=35+random()*175;
   return b;
  });
 }
@@ -100,7 +112,18 @@ export function stepPhysics(bones,dt,held=null){
   const airborne=b.z>0||b.vz>0;
   b.x+=b.vx*dt;b.y+=b.vy*dt;b.angle+=b.av*dt;
   if(airborne){b.vz-=920*dt;b.z+=b.vz*dt;b.tumble+=dt*(7+Math.abs(b.av)*.6);
-   if(b.z<=0){b.z=0;b.vz=Math.abs(b.vz)*.23;if(b.vz<35)b.vz=0;b.vx*=.88;b.vy*=.88;b.av*=.74;}
+   if(b.z<=0){
+    b.z=0;b.vz=Math.abs(b.vz)*.23;
+    if(b.vz<35){
+     b.vz=0;
+     // A specimen arriving later may remain across one already on the cloth.
+     // Layer is visual elevation (not airborne z), so a stack can truly settle.
+     const supports=bones.filter(other=>other!==b&&other.z===0&&other.vz===0&&collision(b,other,0));
+     b.layer=supports.length?Math.min(32,Math.max(...supports.map(other=>other.layer))+9):0;
+     if(b.layer){b.vx*=.3;b.vy*=.3;b.av*=.4;}
+    }
+    b.vx*=.88;b.vy*=.88;b.av*=.74;
+   }
   }
   const friction=Math.exp(-(airborne?.25:2.5)*dt),spin=Math.exp(-(airborne?.25:3.15)*dt);
   b.vx*=friction;b.vy*=friction;b.av*=spin;
@@ -108,7 +131,7 @@ export function stepPhysics(bones,dt,held=null){
  }
  for(let k=0;k<3;k++){
   for(let i=0;i<bones.length;i++)for(let j=i+1;j<bones.length;j++){
-   const a=bones[i],b=bones[j];if(Math.abs(a.z-b.z)>17)continue;
+   const a=bones[i],b=bones[j];if(Math.abs(a.z-b.z)>17 || (a.z===0&&b.z===0&&Math.abs(a.layer-b.layer)>=8))continue;
    if(Math.hypot(a.x-b.x,a.y-b.y)>120)continue;
    const p=collision(a,b);if(p)resolvePair(a,b,p,held);
   }
