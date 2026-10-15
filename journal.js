@@ -1,4 +1,4 @@
-import {serializeBones,restoreBones} from './core.js?v=3.1.1';
+import {serializeBones,restoreBones} from './core.js?v=3.1.2';
 export const JOURNAL_KEY='boneOracleJournalV3';
 export const JOURNAL_LIMIT=100;
 export function safeGet(storage,key,fallback=''){try{return storage.getItem(key)??fallback;}catch{return fallback;}}
