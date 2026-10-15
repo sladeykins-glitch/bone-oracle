@@ -211,14 +211,15 @@ export function offlineReading(bones,question='',context=''){
  const ending=(hope?theme.hope:threat?theme.cost:'The answer remains conditional')+'. To '+theme.action+', attend to '+theme.choice+'. Let '+lead.name+' guide the first step; do not overlook '+weak.name+' in '+realmAt(weak.x,weak.y)+'.';
  return {paragraphs,ending};
 }
-export function serializeBones(bones){return bones.map(b=>({id:b.id,uid:b.uid,intensity:b.intensity,x:b.x,y:b.y,angle:b.angle}));}
+export function serializeBones(bones){return bones.map(b=>({id:b.id,uid:b.uid,intensity:b.intensity,x:b.x,y:b.y,angle:b.angle,layer:b.layer||0}));}
 export function restoreBones(rows){
  if(!Array.isArray(rows)||rows.length<2||rows.length>6)throw Error('Invalid saved cast.');
  const ids=new Set();
  return rows.map((row,i)=>{
   const def=BONES.find(b=>b.id===row.id);if(!def||!Number.isInteger(row.intensity)||row.intensity<1||row.intensity>def.die)throw Error('Invalid saved bone.');
   if(![row.x,row.y,row.angle].every(Number.isFinite)||row.x<10||row.x>750||row.y<10||row.y>750||Math.abs(row.angle)>10000)throw Error('Invalid saved position.');
-  const b=makeBody(def,i,()=>.5);Object.assign(b,{intensity:row.intensity,x:row.x,y:row.y,angle:row.angle});
+  if(row.layer!==undefined&&(!Number.isFinite(row.layer)||row.layer<0||row.layer>32))throw Error('Invalid saved layer.');
+  const b=makeBody(def,i,()=>.5);Object.assign(b,{intensity:row.intensity,x:row.x,y:row.y,angle:row.angle,layer:row.layer||0});
   const uid=typeof row.uid==='string'&&/^[a-zA-Z0-9-]{1,40}$/.test(row.uid)?row.uid:b.uid;
   if(ids.has(uid))throw Error('Duplicate saved bone.');ids.add(uid);b.uid=uid;
   return b;
