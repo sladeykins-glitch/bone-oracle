@@ -1,6 +1,6 @@
-import {BONES,FIELD,REALMS,SHAPES,realmAt,positionBand,createCast,stepPhysics,isSettled,analyseCast,offlineReading,hitBone,serializeBones,restoreBones,castPayload,validateEndpoint} from './core.js?v=3.1.1';
-import {CastingJournal,safeGet,safeSet} from './journal.js?v=3.1.1';
-import {createCrystal} from './crystal.js?v=3.1.1';
+import {BONES,FIELD,REALMS,SHAPES,realmAt,positionBand,createCast,stepPhysics,isSettled,analyseCast,offlineReading,hitBone,serializeBones,restoreBones,castPayload,validateEndpoint} from './core.js?v=3.1.2';
+import {CastingJournal,safeGet,safeSet} from './journal.js?v=3.1.2';
+import {createCrystal} from './crystal.js?v=3.1.2';
 const DEFAULT_ENDPOINT='https://bone-oracle-ai.sladeykins.workers.dev';
 export function createOracle(win){
  const doc=win.document,$=id=>doc.getElementById(id),canvas=$('mat'),ctx=canvas.getContext('2d');
