@@ -38,12 +38,12 @@ export function createOracle(win){
  }
  function resize(){const width=canvas.getBoundingClientRect().width||760,px=Math.max(320,Math.round(width*Math.min(win.devicePixelRatio||1,2)));if(canvas.width!==px){canvas.width=canvas.height=px;}draw();}
  function draw(){if(!ctx)return;ctx.setTransform(canvas.width/760,0,0,canvas.height/760,0,0);ctx.clearRect(0,0,760,760);if(pc)ctx.drawImage(cloth,0,0,760,760);
-  const sorted=[...state.bones].sort((a,b)=>a.z-b.z);
+  const sorted=[...state.bones].sort((a,b)=>(a.layer||0)+a.z-(b.layer||0)-b.z);
   for(const b of sorted){const selected=b===state.selected,image=images.get(b.id),shape=SHAPES[b.id],height=shape.height;
    // Ground shadow stays on the cloth while the specimen rises, spins and rolls.
    ctx.save();ctx.translate(b.x+b.z*.13,b.y+5);ctx.rotate(b.angle);ctx.scale(1+b.z*.003,1);ctx.fillStyle='rgba(31,23,13,'+(b.z>0?.12:.25)+')';ctx.shadowColor='#21150866';ctx.shadowBlur=8+b.z*.12;ctx.beginPath();ctx.ellipse(0,0,shape.width*.42,height*.22,0,0,Math.PI*2);ctx.fill();ctx.restore();
    if(selected){ctx.save();ctx.strokeStyle='#fff0b1';ctx.lineWidth=1.6;ctx.setLineDash([4,6]);ctx.beginPath();ctx.arc(b.x,b.y,Math.max(shape.width,height)*.59,0,Math.PI*2);ctx.stroke();ctx.restore();}
-   ctx.save();ctx.translate(b.x,b.y-b.z*.47);ctx.rotate(b.angle);if(b.z>0)ctx.scale(.65+.35*Math.abs(Math.cos(b.tumble)),.75+.25*Math.abs(Math.sin(b.tumble+.8)));
+   ctx.save();ctx.translate(b.x,b.y-(b.z+(b.layer||0))*.47);ctx.rotate(b.angle);if(b.z>0)ctx.scale(.65+.35*Math.abs(Math.cos(b.tumble)),.75+.25*Math.abs(Math.sin(b.tumble+.8)));
    ctx.shadowColor='#3b281455';ctx.shadowBlur=b.z>0?4:3;ctx.shadowOffsetY=2;
    if(image?.complete&&image.naturalWidth){ctx.drawImage(image,-shape.width/2,-height/2,shape.width,height);}else{
     const g=ctx.createLinearGradient(0,-height/2,0,height/2);g.addColorStop(0,'#f4e5bb');g.addColorStop(.6,'#c9af7e');g.addColorStop(1,'#947449');ctx.fillStyle=g;ctx.beginPath();shape.points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();
